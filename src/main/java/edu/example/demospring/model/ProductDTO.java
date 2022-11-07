@@ -1,11 +1,16 @@
 package edu.example.demospring.model;
 
-public class Product {
+public class ProductDTO {
 
     private Long id;
     private String name;
 
-    public Product() {
+    public ProductDTO() {
+    }
+
+    public ProductDTO(Long id, String name) {
+        this.id = id;
+        this.name = name;
     }
 
     public Long getId() {
