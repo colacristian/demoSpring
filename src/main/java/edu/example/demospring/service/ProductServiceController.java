@@ -43,7 +43,7 @@ public class ProductServiceController {
 
     @RequestMapping(value = "/products")
     public ResponseEntity<Object> getProducts() {
-        return new ResponseEntity<>(productServiceDAO.findProducts().stream().map(o -> new ProductDTO(o.getId(), o.getName())).collect(Collectors.toList()), HttpStatus.OK);
+        return new ResponseEntity<>(productRepository.findAll().stream().map(o -> new ProductDTO(o.getId(), o.getName())).collect(Collectors.toList()), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/products", method = RequestMethod.POST)
@@ -55,13 +55,17 @@ public class ProductServiceController {
         return new ResponseEntity<>("Product created", HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/products/{id}", method = RequestMethod.GET)
+    public ResponseEntity<Object> getProduct(@PathVariable("id") Long id) {
+        return new ResponseEntity<>(productRepository.findById(id).map(p -> new ProductDTO(p.getId(), p.getName())).orElse(null), HttpStatus.OK);
+    }
+
     @RequestMapping(value = "/products/{id}", method = RequestMethod.PUT)
     public ResponseEntity<Object> updateProduct(@PathVariable("id") Long id, @RequestBody ProductDTO productDTO) {
         productRepository.findById(id).ifPresent(p -> {
             p.setName(productDTO.getName());
             productRepository.save(p);
         });
-
         productsMap.remove(id);
         productsMap.put(id, productDTO);
         return new ResponseEntity<>("Product updated", HttpStatus.OK);
