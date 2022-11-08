@@ -53,7 +53,7 @@ class ProductEdit extends Component {
 
     render() {
         const {item} = this.state;
-        const title = <h2>{item.id ? 'Edit Client' : 'Add Client'}</h2>;
+        const title = <h2>{item.id ? 'Edit Product' : 'Add Product'}</h2>;
 
         return (<div>
             <AppNavbar/>

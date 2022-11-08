@@ -54,7 +54,7 @@ class ProductList extends Component {
                     <div className="float-right">
                         <Button color="success" tag={Link} to="/products/new">Add Product</Button>
                     </div>
-                    <h3>Clients</h3>
+                    <h3>Products</h3>
                     <Table className="mt-4">
                         <thead>
                         <tr>
