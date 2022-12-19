@@ -5,17 +5,12 @@ import {Component} from "react";
 import Home from './Home'
 import ProductList from "./ProductList";
 import ProductEdit from "./ProductEdit";
+import Login from "./Login";
 
 class App extends Component {
     state = {
         products: []
     };
-
-    async componentDidMount() {
-        const response = await fetch('/products');
-        const body = await response.json();
-        this.setState({products: body});
-    }
 
     // render() {
     //     const {products} = this.state
@@ -41,6 +36,7 @@ class App extends Component {
             <Router>
                 <Switch>
                     <Route path='/' exact={true}><Home/></Route>
+                    <Route path='/my_login'><Login/></Route>
                     <Route path='/products' exact={true}><ProductList/></Route>
                     <Route path='/products/:id'><ProductEdit/></Route>
                 </Switch>
