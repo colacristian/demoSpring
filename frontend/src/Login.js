@@ -1,7 +1,6 @@
 import {Component} from "react";
 import {Button, ButtonGroup, Container, CustomInput, Table} from 'reactstrap';
 import AppNavbar from "./AppNavbar";
-import { Redirect } from "react-router-dom";
 import axios from "axios";
 
 
@@ -48,10 +47,17 @@ class Login extends Component {
     }
 
     login() {
-        axios.post('/login',this.state
-        ).then(()=>{
+        axios.post('/login', this.state
+        ).then(response => {
             console.log("Redirect....");
-            window.location.href = 'http://localhost:3000/products';
+            console.log(response);
+            console.log(response.data.token);
+            if (response.data.token) {
+                localStorage.setItem("user", JSON.stringify(response.data));
+                window.location.href = 'http://localhost:3000/products';
+            }
+
+
         })
         // fetch('/login', {
         //     method: 'POST',

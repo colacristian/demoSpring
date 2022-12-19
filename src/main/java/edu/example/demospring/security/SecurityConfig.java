@@ -1,5 +1,7 @@
 package edu.example.demospring.security;
 
+import edu.example.demospring.security.jwt.AuthEntryPointJwt;
+import edu.example.demospring.security.jwt.AuthTokenFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -9,9 +11,10 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 /**
  * @author : colacristian on 11/13/22
@@ -19,15 +22,23 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(
-//        prePostEnabled = true,
 //        securedEnabled = true,
-        jsr250Enabled = true)
+//        jsr250Enabled = true,
+        prePostEnabled = true
+)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 
+    private AuthEntryPointJwt entryPointJwt;
     private CustomUserDetailsService customUserDetailsService;
 
-    public SecurityConfig(CustomUserDetailsService customUserDetailsService) {
+    @Bean
+    public AuthTokenFilter authTokenFilter() {
+        return new AuthTokenFilter(customUserDetailsService);
+    }
+
+    public SecurityConfig(AuthEntryPointJwt entryPointJwt, CustomUserDetailsService customUserDetailsService) {
+        this.entryPointJwt = entryPointJwt;
         this.customUserDetailsService = customUserDetailsService;
     }
 
@@ -41,12 +52,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .csrf().disable()
+                .exceptionHandling().authenticationEntryPoint(entryPointJwt).and()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .authorizeRequests()
                 .antMatchers(HttpMethod.GET, "/index").permitAll()
                 .antMatchers("/login").permitAll()
                 .anyRequest()
                 .authenticated();
 
+        http.addFilterBefore(authTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 
     }
 
@@ -61,43 +75,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
     }
-
-
-//    @Bean
-//    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-//        http.csrf().disable()
-//                .authorizeRequests()
-//                .antMatchers("/index").permitAll()
-//                .anyRequest().authenticated()
-//                .and()
-//                .formLogin(
-//                        form -> form
-//                                .loginPage("/login")
-//                                .loginProcessingUrl("/login")
-//                                .defaultSuccessUrl("/products")
-//                                .permitAll()
-//                ).logout(
-//                        logout -> logout
-//                                .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-//                                .permitAll()
-//                                .invalidateHttpSession(true)
-//                                .deleteCookies("JSESSIONID")
-//
-//                );
-//
-//        http.csrf().disable()
-//                .authorizeRequests()
-//                .antMatchers(HttpMethod.POST, "/login").permitAll()
-//                .antMatchers(HttpMethod.GET, "/index").permitAll()
-//                .anyRequest().authenticated()
-//                .and()
-//                .httpBasic();
-//                .exceptionHandling().authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)).and()
-//                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-//
-//
-//        return http.build();
-//    }
 
 
 }

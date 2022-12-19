@@ -1,6 +1,8 @@
 package edu.example.demospring.controller;
 
-import edu.example.demospring.security.User;
+import edu.example.demospring.security.UserImpl;
+import edu.example.demospring.security.jwt.JwtResponse;
+import edu.example.demospring.security.jwt.utils.Utils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -8,7 +10,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -20,16 +21,21 @@ public class AuthController {
 
     private AuthenticationManager authenticationManager;
 
-    public AuthController(AuthenticationManager authenticationManager) {
+
+    private Utils jwtUtils;
+
+    public AuthController(AuthenticationManager authenticationManager, Utils jwtUtils) {
         this.authenticationManager = authenticationManager;
+        this.jwtUtils = jwtUtils;
     }
 
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody User userDTO) {
+    public ResponseEntity<JwtResponse> login(@RequestBody UserImpl userDTO) {
         Authentication authenticate = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userDTO.getUsername(), userDTO.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authenticate);
-        return new ResponseEntity<>("Login successfully!", HttpStatus.OK);
+        String jwt = jwtUtils.generateJwtToken(authenticate);
+        return new ResponseEntity<>(new JwtResponse(jwt, userDTO.getUsername()), HttpStatus.OK);
     }
 
 

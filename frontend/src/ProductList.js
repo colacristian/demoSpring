@@ -3,6 +3,7 @@ import {Button, ButtonGroup, Container, Table} from 'reactstrap';
 import AppNavbar from './AppNavbar';
 import {Link, withRouter} from 'react-router-dom';
 import axios from "axios";
+import authHeader from "./services/auth-header";
 
 class ProductList extends Component {
     constructor(props) {
@@ -12,13 +13,13 @@ class ProductList extends Component {
     }
 
     componentDidMount() {
-        axios.get("/products")
+        axios.get("/products", {headers: authHeader()})
             .then(response => {
                 this.setState({products: response.data});
             }).catch(error => {
             if (error.response) {
                 console.log("Response:" + error.response.status);
-                if (error.response.status === 403) {
+                if (error.response.status === 403 || error.response.status === 401) {
                     console.log("Redirect....");
                     window.location.href = 'http://localhost:3000/my_login';
                     return;
