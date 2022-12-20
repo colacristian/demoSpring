@@ -1,6 +1,8 @@
 package edu.example.demospring.model;
 
-public class ProductDTO {
+import java.io.Serializable;
+
+public class ProductDTO implements Serializable {
 
     private Long id;
     private String name;
