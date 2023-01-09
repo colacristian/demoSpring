@@ -1,12 +1,16 @@
 import {Component} from "react";
 import {Link, withRouter} from 'react-router-dom';
 import {Button, Container, Form, FormGroup, Input, Label} from 'reactstrap';
+import {Client} from '@stomp/stompjs';
 import AppNavbar from './AppNavbar';
+
+const SOCKET_URL = 'ws://localhost:8080/ws-message';
 
 
 class ProductEdit extends Component {
     emptyItem = {
-        name: ''
+        name: '',
+        price: 0
     };
 
     constructor(props) {
@@ -22,8 +26,37 @@ class ProductEdit extends Component {
         console.log(this.props);
         if (this.props.match.params.id !== 'new') {
             const product = await (await fetch(`/products/${this.props.match.params.id}`)).json();
+            console.log(product);
             this.setState({item: product});
         }
+
+        let onConnected = () => {
+            console.log("Connected!!")
+            client.subscribe(`/product_update/${this.props.match.params.id}`, (msg) => {
+                if (msg.body) {
+                    const product = JSON.parse(msg.body);
+                    console.log("Price:" + product.price);
+                    console.log(product);
+                    this.setState({item: product});
+
+                }
+            });
+        }
+
+        let onDisconnected = () => {
+            console.log("Disconnected!!")
+        }
+
+        const client = new Client({
+            brokerURL: SOCKET_URL,
+            reconnectDelay: 5000,
+            heartbeatIncoming: 4000,
+            heartbeatOutgoing: 4000,
+            onConnect: onConnected,
+            onDisconnect: onDisconnected
+        });
+
+        client.activate();
     }
 
     handleChange(event) {
@@ -64,6 +97,11 @@ class ProductEdit extends Component {
                         <Label for="name">Name</Label>
                         <Input type="text" name="name" id="name" value={item.name}
                                onChange={this.handleChange} autoComplete="name"/>
+
+                        <Label for="price">Price</Label>
+                        <Input type="text" name="price" id="price" value={item.price}
+                               onChange={this.handleChange}
+                               autoComplete="price"/>
                     </FormGroup>
                     <FormGroup>
                         <Button color="primary" type="submit">Save</Button>
