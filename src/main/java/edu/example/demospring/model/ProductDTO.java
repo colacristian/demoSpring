@@ -1,9 +1,13 @@
 package edu.example.demospring.model;
 
-public class ProductDTO {
+import java.io.Serializable;
+
+public class ProductDTO implements Serializable {
 
     private Long id;
     private String name;
+
+    private double price;
 
     public ProductDTO() {
     }
@@ -27,5 +31,13 @@ public class ProductDTO {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
     }
 }

@@ -2,6 +2,7 @@ import {Component} from "react";
 import {Button, ButtonGroup, Container, Table} from 'reactstrap';
 import AppNavbar from './AppNavbar';
 import {Link, withRouter} from 'react-router-dom';
+import axios from "axios";
 
 class ProductList extends Component {
     constructor(props) {
@@ -11,9 +12,28 @@ class ProductList extends Component {
     }
 
     componentDidMount() {
-        fetch('/products')
-            .then(response => response.json())
-            .then(data => this.setState({products: data}));
+        axios.get("/products")
+            .then(response => {
+                this.setState({products: response.data});
+            }).catch(error => {
+            if (error.response) {
+                console.log("Response:" + error.response.status);
+                if (error.response.status === 403) {
+                    console.log("Redirect....");
+                    window.location.href = 'http://localhost:3000/my_login';
+                    return;
+                }
+            } else if (error.request) {
+                console.log(error.request);
+            } else {
+                console.log('Error', error.message);
+            }
+        });
+
+
+        // fetch('/products')
+        //     .then(response => response.json())
+        //     .then(data => this.setState({products: data}));
     }
 
 
