@@ -33,6 +33,7 @@ public class KafkaController {
 
     @KafkaListener(
             topics = TOPIC_NAME,
+            groupId = "my-test",
             containerFactory = "kafkaListenerContainerFactory")
     public void greetingListener(ProductDTO productDTO) {
         log.info("Received:" + productDTO.getName());
